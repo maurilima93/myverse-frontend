@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link } from 'react-router-dom';
@@ -48,23 +48,28 @@ export const RegisterForm: React.FC = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
     watch,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      acceptTerms: false,
+    },
   });
 
   const password = watch('password');
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
+      console.log('Dados do formulário:', data); // Debug
       await registerUser({
         username: data.username,
         email: data.email,
         password: data.password,
       });
     } catch (error) {
-      // Erro já tratado no contexto de autenticação
+      console.error('Erro no registro:', error);
     }
   };
 
@@ -91,7 +96,7 @@ export const RegisterForm: React.FC = () => {
   const passwordStrength = getPasswordStrength(password);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen myverse-flex-center bg-background py-12">
       <div className="w-full max-w-md p-6">
         <Card className="myverse-card">
           <CardHeader className="text-center">
@@ -236,12 +241,19 @@ export const RegisterForm: React.FC = () => {
                 )}
               </div>
 
-              {/* Terms and Conditions */}
+              {/* Terms and Conditions - CORRIGIDO */}
               <div className="flex items-start space-x-2">
-                <Checkbox
-                  id="acceptTerms"
-                  {...register('acceptTerms')}
-                  className="mt-1"
+                <Controller
+                  name="acceptTerms"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="acceptTerms"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                      className="mt-1"
+                    />
+                  )}
                 />
                 <Label htmlFor="acceptTerms" className="text-sm leading-relaxed">
                   Aceito os{' '}
@@ -298,4 +310,3 @@ export const RegisterForm: React.FC = () => {
 };
 
 export default RegisterForm;
-
