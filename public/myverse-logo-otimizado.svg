@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Definir a cor roxa como variável -->
+    <style>
+      .orbit { 
+        fill: none; 
+        stroke: #8B5CF6; 
+        stroke-width: 3; 
+      }
+      .center-text { 
+        font-family: 'Arial', sans-serif; 
+        font-size: 16px; 
+        font-weight: bold; 
+        fill: #8B5CF6; 
+        text-anchor: middle; 
+        dominant-baseline: central; 
+      }
+    </style>
+  </defs>
+  
+  <!-- Primeira elipse orbital -->
+  <ellipse cx="50" cy="50" rx="12" ry="35" class="orbit" transform="rotate(0 50 50)"/>
+  
+  <!-- Segunda elipse orbital -->
+  <ellipse cx="50" cy="50" rx="12" ry="35" class="orbit" transform="rotate(60 50 50)"/>
+  
+  <!-- Terceira elipse orbital -->
+  <ellipse cx="50" cy="50" rx="12" ry="35" class="orbit" transform="rotate(120 50 50)"/>
+  
+  <!-- Texto MV no centro -->
+  <text x="50" y="50" class="center-text">MV</text>
+</svg>
+

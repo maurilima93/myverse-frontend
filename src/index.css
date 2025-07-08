@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Tema escuro estilo IMDb com acentos roxos */
+    --background: 0 0% 7%;           /* Preto/cinza muito escuro como IMDb */
+    --foreground: 0 0% 95%;          /* Texto branco */
+    --card: 0 0% 10%;                /* Cards cinza escuro */
+    --card-foreground: 0 0% 95%;     /* Texto dos cards */
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 271 81% 56%;          /* Roxo principal */
+    --primary-foreground: 0 0% 98%;  /* Texto sobre roxo */
+    --secondary: 0 0% 14%;           /* Cinza escuro para elementos secundários */
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 14%;               /* Elementos silenciados */
+    --muted-foreground: 0 0% 63%;    /* Texto silenciado */
+    --accent: 271 81% 56%;           /* Roxo para acentos */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;        /* Vermelho para ações destrutivas */
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%;              /* Bordas cinza escuro */
+    --input: 0 0% 14%;               /* Campos de input */
+    --ring: 271 81% 56%;             /* Roxo para focus rings */
+    --radius: 0.75rem;
+    
+    /* Variáveis customizadas para o tema IMDb */
+    --imdb-dark: 0 0% 7%;
+    --imdb-card: 0 0% 10%;
+    --imdb-border: 0 0% 20%;
+    --purple-primary: 271 81% 56%;
+    --purple-hover: 271 81% 50%;
+    --text-primary: 0 0% 95%;
+    --text-secondary: 0 0% 70%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Estilo IMDb customizado */
+  .imdb-theme {
+    background-color: hsl(var(--imdb-dark));
+    color: hsl(var(--text-primary));
+  }
+  
+  .imdb-card {
+    background-color: hsl(var(--imdb-card));
+    border: 1px solid hsl(var(--imdb-border));
+    border-radius: 8px;
+  }
+  
+  .purple-button {
+    background-color: hsl(var(--purple-primary));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  
+  .purple-button:hover {
+    background-color: hsl(var(--purple-hover));
+    transform: translateY(-1px);
+  }
+  
+  .purple-link {
+    color: hsl(var(--purple-primary));
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .purple-link:hover {
+    color: hsl(var(--purple-hover));
+    text-decoration: underline;
+  }
+  
+  /* Navbar estilo IMDb */
+  .imdb-navbar {
+    background-color: hsl(var(--imdb-dark));
+    border-bottom: 1px solid hsl(var(--imdb-border));
+    backdrop-filter: blur(10px);
+  }
+  
+  /* Hero section com gradiente roxo */
+  .hero-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--imdb-dark)) 0%, 
+      hsl(271 81% 10%) 50%, 
+      hsl(var(--imdb-dark)) 100%);
+  }
+  
+  /* Cards de funcionalidades */
+  .feature-card {
+    background-color: hsl(var(--imdb-card));
+    border: 1px solid hsl(var(--imdb-border));
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+  }
+  
+  .feature-card:hover {
+    border-color: hsl(var(--purple-primary));
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Ícones roxos */
+  .purple-icon {
+    color: hsl(var(--purple-primary));
+  }
+  
+  /* Texto secundário */
+  .text-secondary-imdb {
+    color: hsl(var(--text-secondary));
+  }
+  
+  /* Estatísticas */
+  .stats-section {
+    background-color: hsl(var(--imdb-card));
+    border-top: 1px solid hsl(var(--imdb-border));
+    border-bottom: 1px solid hsl(var(--imdb-border));
+  }
+  
+  /* Inputs estilo IMDb */
+  .imdb-input {
+    background-color: hsl(var(--input));
+    border: 1px solid hsl(var(--imdb-border));
+    color: hsl(var(--text-primary));
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .imdb-input:focus {
+    border-color: hsl(var(--purple-primary));
+    outline: none;
+    box-shadow: 0 0 0 2px hsla(var(--purple-primary), 0.2);
+  }
+  
+  .imdb-input::placeholder {
+    color: hsl(var(--text-secondary));
+  }
+}
+
