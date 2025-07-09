@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,7 +19,7 @@ const FavoritesPage: React.FC = () => {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
-  const { user } = useAuth();
+  const { } = useAuth();
 
   const fetchFavorites = async () => {
     try {
@@ -287,4 +287,3 @@ const FavoritesPage: React.FC = () => {
 };
 
 export default FavoritesPage;
-
