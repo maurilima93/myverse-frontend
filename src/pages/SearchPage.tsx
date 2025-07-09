@@ -70,22 +70,34 @@ const SearchPage: React.FC = () => {
 
   const addToFavorites = async (item: SearchResult) => {
     if (!user) {
-      alert('Faça login para adicionar aos favoritos');
+      toast.error('Faça login para adicionar aos favoritos');
       return;
     }
 
     try {
-      await api.post('/user/favorites', {
-        content_id: item.id,
-        content_type: item.type,
-        title: item.title,
-        poster_url: item.poster_url,
-        rating: item.rating
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/content/favorites`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('myverse_token')}`
+        },
+        body: JSON.stringify({
+          content_id: item.id,
+          content_type: item.type,
+          title: item.title,
+          poster_url: item.poster_url
+        })
       });
-      alert('Adicionado aos favoritos!');
-    } catch (err) {
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao adicionar aos favoritos');
+      }
+
+      toast.success('Adicionado aos favoritos!');
+    } catch (err: any) {
       console.error('Erro ao adicionar aos favoritos:', err);
-      alert('Erro ao adicionar aos favoritos');
+      toast.error(err.message || 'Erro ao adicionar aos favoritos');
     }
   };
 
