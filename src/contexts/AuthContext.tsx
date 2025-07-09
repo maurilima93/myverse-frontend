@@ -170,6 +170,7 @@ export const useAuth = (): AuthContextType => {
 // Hook para proteger rotas
 export const useRequireAuth = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
