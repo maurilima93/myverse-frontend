@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, authService, LoginData, RegisterData } from '../lib/api';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -22,6 +23,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const isAuthenticated = !!user;
 
@@ -68,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Redirecionar para dashboard ou página anterior
       const redirectTo = localStorage.getItem('myverse_redirect') || '/dashboard';
       localStorage.removeItem('myverse_redirect');
-      window.location.href = redirectTo;
+      navigate(redirectTo);
       
     } catch (error: any) {
       console.error('Erro no login:', error);
@@ -90,8 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
       toast.success('Conta criada com sucesso!');
       
-      // Redirecionar para onboarding
-      window.location.href = '/onboarding';
+      navigate("/onboarding");
       
     } catch (error: any) {
       console.error('Erro no registo:', error);
@@ -111,7 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     toast.success('Logout realizado com sucesso!');
     
     // Redirecionar para página inicial
-    window.location.href = '/';
+    navigate("/");
   };
 
   const updateUser = async (data: Partial<User>) => {
@@ -173,10 +174,10 @@ export const useRequireAuth = () => {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       // Salvar página atual para redirecionar após login
-      localStorage.setItem('myverse_redirect', window.location.pathname);
-      window.location.href = '/login';
+      localStorage.setItem("myverse_redirect", window.location.pathname);
+      navigate("/login");
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, navigate]);
   
   return { isAuthenticated, isLoading };
 };
