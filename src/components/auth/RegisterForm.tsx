@@ -96,7 +96,7 @@ export const RegisterForm: React.FC = () => {
   const passwordStrength = getPasswordStrength(password);
 
   return (
-    <div className="min-h-screen myverse-flex-center bg-background py-12">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md p-6">
         <Card className="myverse-card">
           <CardHeader className="text-center">
