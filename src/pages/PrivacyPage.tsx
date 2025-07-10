@@ -66,7 +66,7 @@ const PrivacyPage: React.FC = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">Política de Privacidade</h1>
           <p className="text-purple-200">
-            Última atualização: 15 de Janeiro de 2024
+            Última atualização: 10 de Julho de 2025
           </p>
         </div>
 
@@ -164,13 +164,13 @@ const PrivacyPage: React.FC = () => {
                 </p>
                 <Button 
                   variant="outline" 
-                  className="w-full border-gray-600 text-white hover:bg-gray-700"
+                  className="w-full border-gray-600 text-purple-400 hover:bg-gray-700"
                 >
                   Gerenciar Preferências
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full border-gray-600 text-white hover:bg-gray-700"
+                  className="w-full border-gray-600 text-purple-400 hover:bg-gray-700"
                 >
                   Solicitar Dados
                 </Button>
@@ -187,7 +187,7 @@ const PrivacyPage: React.FC = () => {
                 </p>
                 <Button 
                   variant="outline" 
-                  className="w-full border-gray-600 text-white hover:bg-gray-700"
+                  className="w-full border-gray-600 text-purple-400 hover:bg-gray-700"
                 >
                   Ler Termos de Serviço
                 </Button>

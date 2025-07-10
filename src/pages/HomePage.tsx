@@ -149,7 +149,8 @@ const HomePage: React.FC = () => {
               </Button>
             </Link>
           </div>
-          <Link to="/contact">
+          <div className="flex flex-col items-center mt-6">
+            <Link to="/contact">
               <Button 
                 variant="ghost" 
                 className="text-lg px-8 py-4 text-purple-400 hover:text-white hover:bg-purple-500/10"
@@ -157,6 +158,7 @@ const HomePage: React.FC = () => {
                 Contato
               </Button>
             </Link>
+          </div>
         </div>
       </section>
     </div>
