@@ -49,6 +49,12 @@ const Navbar: React.FC = () => {
                 Início
               </Link>
               <Link 
+                to="/about" 
+                className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Sobre
+              </Link>
+              <Link 
                 to="/forum" 
                 className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors"
               >
