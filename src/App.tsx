@@ -22,6 +22,7 @@ import ForumTopicPage from './pages/ForumTopicPage';
 import CreateTopicPage from './pages/CreateTopicPage';
 import SearchPage from './pages/SearchPage';
 import FavoritesPage from './pages/FavoritesPage';
+import AboutPage from './pages/AboutPage';
 
 // Componente para rotas protegidas
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -86,7 +87,14 @@ const AppRoutes: React.FC = () => {
           </MainLayout>
         } 
       />
-      
+      <Route 
+        path="/" 
+        element={
+          <MainLayout>
+            <AboutPage/>
+          </MainLayout>
+        } 
+      />
       {/* Rotas de Autenticação */}
       <Route 
         path="/login" 
