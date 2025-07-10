@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardTitle } from '../components/ui/
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'react-toastify';
 import api from '../lib/api';
 
 interface SearchResult {
