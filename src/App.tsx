@@ -24,6 +24,7 @@ import SearchPage from './pages/SearchPage';
 import FavoritesPage from './pages/FavoritesPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import PrivacyPage from './pages/PrivacyPage';
 
 // Componente para rotas protegidas
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -101,6 +102,14 @@ const AppRoutes: React.FC = () => {
         element={
           <MainLayout>
             <ContactPage/>
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="privacy" 
+        element={
+          <MainLayout>
+            <PrivacyPage/>
           </MainLayout>
         } 
       />

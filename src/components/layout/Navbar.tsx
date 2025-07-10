@@ -60,6 +60,12 @@ const Navbar: React.FC = () => {
               >
                 Fórum
               </Link>
+              <Link 
+                to="/privacy" 
+                className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Política de Privacidade
+              </Link>
               {user && (
                 <Link 
                   to="/dashboard" 
