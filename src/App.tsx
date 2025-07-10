@@ -88,7 +88,7 @@ const AppRoutes: React.FC = () => {
         } 
       />
       <Route 
-        path="/" 
+        path="about" 
         element={
           <MainLayout>
             <AboutPage/>
