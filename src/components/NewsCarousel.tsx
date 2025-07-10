@@ -22,7 +22,7 @@ const NewsCarousel: React.FC = () => {
       id: 1,
       title: 'Novo trailer da segunda temporada de The Last of Us impressiona',
       category: 'Série',
-      imageUrl: 'https://placehold.co/600x400/1a1a2e/FFFFFF?text=The+Last+of+Us', // Novo serviço de placeholder
+      imageUrl: '../images/the-last-of-us.jpg',
       excerpt: 'HBO libera trailer emocionante da nova temporada da série baseada no jogo aclamado.',
       date: '10/07/2025'
     },
@@ -30,7 +30,7 @@ const NewsCarousel: React.FC = () => {
       id: 2,
       title: 'Duna: Parte 2 bate recorde de bilheteria no primeiro fim de semana',
       category: 'Filme',
-      imageUrl: '/images/duna2.jpg',
+      imageUrl: '../images/duna2.jpg',
       excerpt: 'Sequência do filme de Denis Villeneuve supera expectativas nas bilheterias globais.',
       date: '10/07/2025'
     },
@@ -38,7 +38,7 @@ const NewsCarousel: React.FC = () => {
       id: 3,
       title: 'GTA VI tem data de lançamento anunciada oficialmente',
       category: 'Jogo',
-      imageUrl: '/images/gta6.jpg',
+      imageUrl: '../images/gta6.jpg',
       excerpt: 'Rockstar confirma lançamento para 2025 com trailer espetacular.',
       date: '10/07/2025'
     },
@@ -46,7 +46,7 @@ const NewsCarousel: React.FC = () => {
       id: 4,
       title: 'Stranger Things: Temporada final terá episódio extra longo',
       category: 'Série',
-      imageUrl: '/images/stranger-things.jpg',
+      imageUrl: '../images/stranger-things.jpg',
       excerpt: 'Produtores revelam detalhes sobre o aguardado final da série.',
       date: '10/07/2025'
     },
@@ -54,7 +54,7 @@ const NewsCarousel: React.FC = () => {
       id: 5,
       title: 'Novo filme do Batman com Robert Pattinson ganha sequência confirmada',
       category: 'Filme',
-      imageUrl: '/images/batman.jpg',
+      imageUrl: '../images/batman.jpg',
       excerpt: 'Estúdio anuncia The Batman Part II para 2026 com o mesmo elenco.',
       date: '10/07/2025'
     }
