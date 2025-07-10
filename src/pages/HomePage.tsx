@@ -28,9 +28,9 @@ const HomePage: React.FC = () => {
   ];
 
   const stats = [
-    { number: '10K+', label: 'Utilizadores Ativos' },
+    { number: '130+', label: 'Utilizadores Ativos' },
     { number: '50K+', label: 'Conteúdos Catalogados' },
-    { number: '1M+', label: 'Avaliações' },
+    { number: '30', label: 'Avaliações' },
     { number: '24/7', label: 'Suporte' },
   ];
 

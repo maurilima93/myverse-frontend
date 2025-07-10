@@ -142,7 +142,7 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">Email</h3>
-                    <p className="text-purple-400">contato@myverse.com.br</p>
+                    <p className="text-purple-400">mauri@myverse.com.br</p>
                     <p className="text-gray-400 text-sm mt-1">Respondemos em até 24h</p>
                   </div>
                 </div>
@@ -153,7 +153,7 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">Telefone</h3>
-                    <p className="text-purple-400">(11) 98765-4321</p>
+                    <p className="text-purple-400">(15) 99769-8979</p>
                     <p className="text-gray-400 text-sm mt-1">Seg-Sex, 9h às 18h</p>
                   </div>
                 </div>
@@ -164,13 +164,13 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">Endereço</h3>
-                    <p className="text-purple-400">Av. Paulista, 1000</p>
-                    <p className="text-purple-400">São Paulo - SP, 01310-100</p>
+                    <p className="text-purple-400">Alameda Xingu, 512, Alphaville</p>
+                    <p className="text-purple-400">Barueri - SP, 06454-050</p>
                   </div>
                 </div>
 
                 <div className="pt-4">
-                  <h3 className="font-semibold text-white mb-3">Redes Sociais</h3>
+                  <h3 className="font-semibold text-purple-400 mb-3">Redes Sociais</h3>
                   <div className="flex gap-3">
                     {['Instagram', 'Twitter', 'LinkedIn'].map((social) => (
                       <Button 
