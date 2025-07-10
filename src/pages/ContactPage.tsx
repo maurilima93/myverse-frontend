@@ -19,7 +19,7 @@ const ContactPage: React.FC = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async () => {
     setIsSubmitting(true);
     try {
       // Simular envio
