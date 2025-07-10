@@ -20,10 +20,10 @@ const NewsCarousel: React.FC = () => {
   const newsItems: NewsItem[] = [
     {
       id: 1,
-      title: 'Novo trailer da segunda temporada de The Last of Us impressiona',
+      title: 'Wandinha retorna em 6 de Agosto',
       category: 'Série',
-      imageUrl: '../images/the-last-of-us.jpg',
-      excerpt: 'HBO libera trailer emocionante da nova temporada da série baseada no jogo aclamado.',
+      imageUrl: '../images/wandinha.jpg',
+      excerpt: 'Netflix libera trailer da nova temporada da série Wandinha.',
       date: '10/07/2025'
     },
     {
