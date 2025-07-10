@@ -170,14 +170,14 @@ const ContactPage: React.FC = () => {
                 </div>
 
                 <div className="pt-4">
-                  <h3 className="font-semibold text-purple-400 mb-3">Redes Sociais</h3>
+                  <h3 className="font-semibold text-white mb-3">Redes Sociais</h3>
                   <div className="flex gap-3">
                     {['Instagram', 'Twitter', 'LinkedIn'].map((social) => (
                       <Button 
                         key={social} 
                         variant="outline" 
                         size="sm"
-                        className="border-gray-600 text-white hover:bg-gray-700"
+                        className="border-gray-600 text-purple-400 hover:bg-gray-700"
                       >
                         {social}
                       </Button>
