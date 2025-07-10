@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Users, TrendingUp, Play, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import NewsCarousel from '../components/NewsCarousel';
 
 const HomePage: React.FC = () => {
   const features = [
@@ -64,7 +65,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-
+      <NewsCarousel />
       {/* Tagline Section */}
       <section className="py-12 text-center">
         <div className="max-w-4xl mx-auto px-4">
