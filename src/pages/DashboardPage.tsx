@@ -92,7 +92,7 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
       <div className="myverse-container myverse-section">
         {/* Header */}
         <div className="mb-8">
@@ -101,10 +101,10 @@ const DashboardPage: React.FC = () => {
               {user?.username?.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white mb-1">
+              <h1 className="text-3xl font-bold text-white mb-1 text-center">
                 Bem-vindo de volta, {user?.username}! 👋
               </h1>
-              <p className="text-purple-200">
+              <p className="text-purple-200 text-center">
                 Aqui está o que está acontecendo no seu MyVerse
               </p>
             </div>
