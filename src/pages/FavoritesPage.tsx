@@ -287,3 +287,4 @@ const FavoritesPage: React.FC = () => {
 };
 
 export default FavoritesPage;
+

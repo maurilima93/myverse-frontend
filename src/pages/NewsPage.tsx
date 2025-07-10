@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '../components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { useAuth } from '../contexts/AuthContext';
-import { Calendar, User, ExternalLink, Plus} from 'lucide-react';
+import { Calendar, User, ExternalLink, Plus, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface NewsArticle {

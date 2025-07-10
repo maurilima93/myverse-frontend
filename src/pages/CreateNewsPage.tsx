@@ -239,7 +239,7 @@ const CreateNewsPage: React.FC = () => {
                   <Checkbox
                     id="featured"
                     checked={isFeatured}
-                    onCheckedChange={setIsFeatured}
+                    onCheckedChange={(checked) => setIsFeatured(Boolean(checked))}
                   />
                   <Label htmlFor="featured" className="flex items-center gap-2">
                     <Star className="w-4 h-4" />
