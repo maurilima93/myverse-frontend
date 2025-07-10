@@ -30,7 +30,7 @@ const NewsCarousel: React.FC = () => {
       id: 2,
       title: 'Duna: Parte 2 bate recorde de bilheteria no primeiro fim de semana',
       category: 'Filme',
-      imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=Duna+Parte+2',
+      imageUrl: '/images/duna2.jpg',
       excerpt: 'Sequência do filme de Denis Villeneuve supera expectativas nas bilheterias globais.',
       date: '10/07/2025'
     },
@@ -38,7 +38,7 @@ const NewsCarousel: React.FC = () => {
       id: 3,
       title: 'GTA VI tem data de lançamento anunciada oficialmente',
       category: 'Jogo',
-      imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=GTA+VI',
+      imageUrl: '/images/gta6.jpg',
       excerpt: 'Rockstar confirma lançamento para 2025 com trailer espetacular.',
       date: '10/07/2025'
     },
@@ -46,7 +46,7 @@ const NewsCarousel: React.FC = () => {
       id: 4,
       title: 'Stranger Things: Temporada final terá episódio extra longo',
       category: 'Série',
-      imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=Stranger+Things',
+      imageUrl: '/images/stranger-things.jpg',
       excerpt: 'Produtores revelam detalhes sobre o aguardado final da série.',
       date: '10/07/2025'
     },
@@ -54,7 +54,7 @@ const NewsCarousel: React.FC = () => {
       id: 5,
       title: 'Novo filme do Batman com Robert Pattinson ganha sequência confirmada',
       category: 'Filme',
-      imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=The+Batman+2',
+      imageUrl: '/images/batman.jpg',
       excerpt: 'Estúdio anuncia The Batman Part II para 2026 com o mesmo elenco.',
       date: '10/07/2025'
     }
