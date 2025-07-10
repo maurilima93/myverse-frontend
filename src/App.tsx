@@ -23,6 +23,7 @@ import CreateTopicPage from './pages/CreateTopicPage';
 import SearchPage from './pages/SearchPage';
 import FavoritesPage from './pages/FavoritesPage';
 import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 
 // Componente para rotas protegidas
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -92,6 +93,14 @@ const AppRoutes: React.FC = () => {
         element={
           <MainLayout>
             <AboutPage/>
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="contact" 
+        element={
+          <MainLayout>
+            <ContactPage/>
           </MainLayout>
         } 
       />

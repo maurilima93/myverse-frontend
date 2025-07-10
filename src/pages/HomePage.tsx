@@ -149,6 +149,14 @@ const HomePage: React.FC = () => {
               </Button>
             </Link>
           </div>
+          <Link to="/contact">
+              <Button 
+                variant="ghost" 
+                className="text-lg px-8 py-4 text-purple-400 hover:text-white hover:bg-purple-500/10"
+              >
+                Contato
+              </Button>
+            </Link>
         </div>
       </section>
     </div>
