@@ -22,9 +22,9 @@ const NewsCarousel: React.FC = () => {
       id: 1,
       title: 'Novo trailer da segunda temporada de The Last of Us impressiona',
       category: 'Série',
-      imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=The+Last+of+Us',
+      imageUrl: 'https://placehold.co/600x400/1a1a2e/FFFFFF?text=The+Last+of+Us', // Novo serviço de placeholder
       excerpt: 'HBO libera trailer emocionante da nova temporada da série baseada no jogo aclamado.',
-      date: '15/01/2024'
+      date: '10/07/2025'
     },
     {
       id: 2,
@@ -32,7 +32,7 @@ const NewsCarousel: React.FC = () => {
       category: 'Filme',
       imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=Duna+Parte+2',
       excerpt: 'Sequência do filme de Denis Villeneuve supera expectativas nas bilheterias globais.',
-      date: '12/01/2024'
+      date: '10/07/2025'
     },
     {
       id: 3,
@@ -40,7 +40,7 @@ const NewsCarousel: React.FC = () => {
       category: 'Jogo',
       imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=GTA+VI',
       excerpt: 'Rockstar confirma lançamento para 2025 com trailer espetacular.',
-      date: '10/01/2024'
+      date: '10/07/2025'
     },
     {
       id: 4,
@@ -48,7 +48,7 @@ const NewsCarousel: React.FC = () => {
       category: 'Série',
       imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=Stranger+Things',
       excerpt: 'Produtores revelam detalhes sobre o aguardado final da série.',
-      date: '08/01/2024'
+      date: '10/07/2025'
     },
     {
       id: 5,
@@ -56,7 +56,7 @@ const NewsCarousel: React.FC = () => {
       category: 'Filme',
       imageUrl: 'https://via.placeholder.com/300x170/1a1a2e/ffffff?text=The+Batman+2',
       excerpt: 'Estúdio anuncia The Batman Part II para 2026 com o mesmo elenco.',
-      date: '05/01/2024'
+      date: '10/07/2025'
     }
   ];
 
