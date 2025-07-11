@@ -38,6 +38,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen imdb-theme">
       {/* Hero Section */}
+      <NewsCarousel />
       <section className="hero-gradient py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
@@ -65,7 +66,6 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-      <NewsCarousel />
       {/* Tagline Section */}
       <section className="py-12 text-center">
         <div className="max-w-4xl mx-auto px-4">
