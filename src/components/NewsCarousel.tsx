@@ -22,7 +22,7 @@ const NewsCarousel: React.FC = () => {
       id: 1,
       title: 'Wandinha retorna em 6 de Agosto',
       category: 'Série',
-      imageUrl: 'wandinha.jpg',
+      imageUrl: '/images/noticias/wandinha.jpg',
       excerpt: 'Netflix libera trailer da nova temporada da série Wandinha.',
       date: '10/07/2025'
     },
@@ -38,7 +38,7 @@ const NewsCarousel: React.FC = () => {
       id: 3,
       title: 'GTA VI tem data de lançamento anunciada oficialmente',
       category: 'Jogo',
-      imageUrl: './images/gta6.jpg',
+      imageUrl: '/images/noticias/gta6.jpg',
       excerpt: 'Rockstar confirma lançamento para 2025 com trailer espetacular.',
       date: '10/07/2025'
     },
@@ -46,7 +46,7 @@ const NewsCarousel: React.FC = () => {
       id: 4,
       title: 'Stranger Things: Temporada final terá episódio extra longo',
       category: 'Série',
-      imageUrl: '../src/images/stranger-things.jpg',
+      imageUrl: '/images/noticias/stranger-things.jpg',
       excerpt: 'Produtores revelam detalhes sobre o aguardado final da série.',
       date: '10/07/2025'
     },
@@ -54,7 +54,7 @@ const NewsCarousel: React.FC = () => {
       id: 5,
       title: 'Novo filme do Batman com Robert Pattinson ganha sequência confirmada',
       category: 'Filme',
-      imageUrl: '/src/images/batman.jpg',
+      imageUrl: '/images/noticias/batman.jpg',
       excerpt: 'Estúdio anuncia The Batman Part II para 2026 com o mesmo elenco.',
       date: '10/07/2025'
     }
