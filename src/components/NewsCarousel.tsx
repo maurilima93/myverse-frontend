@@ -30,7 +30,7 @@ const NewsCarousel: React.FC = () => {
       id: 2,
       title: 'Duna: Parte 2 bate recorde de bilheteria no primeiro fim de semana',
       category: 'Filme',
-      imageUrl: '/images/duna2.jpg',
+      imageUrl: '/images/noticias/duna2.jpg',
       excerpt: 'Sequência do filme de Denis Villeneuve supera expectativas nas bilheterias globais.',
       date: '10/07/2025'
     },
