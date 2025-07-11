@@ -22,7 +22,7 @@ const NewsCarousel: React.FC = () => {
       id: 1,
       title: 'Wandinha retorna em 6 de Agosto',
       category: 'Série',
-      imageUrl: '../images/wandinha.jpg',
+      imageUrl: 'wandinha.jpg',
       excerpt: 'Netflix libera trailer da nova temporada da série Wandinha.',
       date: '10/07/2025'
     },
