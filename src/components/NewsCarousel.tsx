@@ -101,7 +101,7 @@ const NewsCarousel: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-white">
-            Top 5 Notícias do Entretenimento
+            Top 5 Notícias MyVerse
           </h2>
           <div className="flex gap-2">
             <button 
