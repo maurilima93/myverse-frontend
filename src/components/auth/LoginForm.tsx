@@ -157,17 +157,6 @@ export const LoginForm: React.FC = () => {
             </form>
           </CardContent>
         </Card>
-
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-          <p className="text-xs text-muted-foreground text-center mb-2">
-            Para demonstração, pode usar:
-          </p>
-          <div className="text-xs text-muted-foreground text-center space-y-1">
-            <p><strong>Email:</strong> demo@myverse.com</p>
-            <p><strong>Password:</strong> Demo123!</p>
-          </div>
-        </div>
       </div>
     </div>
   );
