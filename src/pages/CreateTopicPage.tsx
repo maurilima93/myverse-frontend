@@ -1,41 +1,85 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Label } from '../components/ui/label';
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, Send } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 const CreateTopicPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [category, setCategory] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const categories = [
+    { value: 'filmes', label: 'Filmes' },
+    { value: 'series', label: 'Séries' },
+    { value: 'jogos', label: 'Jogos' },
+    { value: 'livros', label: 'Livros' },
+    { value: 'geral', label: 'Geral' },
+    { value: 'recomendacoes', label: 'Recomendações' },
+    { value: 'noticias', label: 'Notícias' }
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title.trim() || !content.trim()) {
-      toast.error('Título e conteúdo são obrigatórios');
+    if (!user) {
+      toast.error('Você precisa estar logado para criar um tópico');
+      navigate('/login');
       return;
     }
 
+    if (!title.trim()) {
+      toast.error('Título é obrigatório');
+      return;
+    }
+
+    if (title.trim().length < 5) {
+      toast.error('Título deve ter pelo menos 5 caracteres');
+      return;
+    }
+
+    if (!content.trim()) {
+      toast.error('Conteúdo é obrigatório');
+      return;
+    }
+
+    if (content.trim().length < 10) {
+      toast.error('Conteúdo deve ter pelo menos 10 caracteres');
+      return;
+    }
+
+    if (!category) {
+      toast.error('Categoria é obrigatória');
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      setIsLoading(true);
-      
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/forum/posts`, {
+      const token = localStorage.getItem('myverse_token');
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado');
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/forum/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('myverse_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           title: title.trim(),
-          content: content.trim()
+          content: content.trim(),
+          category: category
         })
       });
 
@@ -45,164 +89,170 @@ const CreateTopicPage: React.FC = () => {
       }
 
       const data = await response.json();
+      
       toast.success('Tópico criado com sucesso!');
       navigate(`/forum/topic/${data.post.id}`);
-      
-    } catch (error: any) {
-      console.error('Erro ao criar tópico:', error);
-      toast.error(error.message || 'Erro ao criar tópico');
+    } catch (err: any) {
+      console.error('Erro ao criar tópico:', err);
+      toast.error(err.message || 'Erro ao criar tópico');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="myverse-container myverse-section">
+          <Card className="max-w-2xl mx-auto bg-gray-800 border-gray-700">
+            <CardContent className="p-8 text-center">
+              <h2 className="text-2xl font-bold text-white mb-4">Login Necessário</h2>
+              <p className="text-gray-400 mb-6">
+                Você precisa estar logado para criar um tópico no fórum.
+              </p>
+              <div className="space-x-4">
+                <Button onClick={() => navigate('/login')} className="bg-primary hover:bg-primary/90">
+                  Fazer Login
+                </Button>
+                <Button onClick={() => navigate('/forum')} variant="outline">
+                  Voltar ao Fórum
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <div className="myverse-container myverse-section">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/forum')}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar ao Fórum
-            </Button>
-            <div>
-              <h1 className="myverse-heading-2">Criar Novo Tópico</h1>
-              <p className="text-muted-foreground">
-                Compartilhe suas ideias e inicie uma discussão
-              </p>
-            </div>
-          </div>
-
-          {/* Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Novo Tópico</CardTitle>
-              <CardDescription>
-                Preencha as informações abaixo para criar seu tópico
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Título */}
-                <div className="space-y-2">
-                  <Label htmlFor="title">Título do Tópico</Label>
-                  <Input
-                    id="title"
-                    placeholder="Digite um título chamativo para seu tópico..."
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    maxLength={200}
-                    required
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    {title.length}/200 caracteres
-                  </p>
-                </div>
-
-                {/* Conteúdo */}
-                <div className="space-y-2">
-                  <Label htmlFor="content">Conteúdo</Label>
-                  <Textarea
-                    id="content"
-                    placeholder="Escreva o conteúdo do seu tópico aqui..."
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    rows={10}
-                    maxLength={5000}
-                    required
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    {content.length}/5000 caracteres
-                  </p>
-                </div>
-
-                {/* Preview */}
-                {(title.trim() || content.trim()) && (
-                  <div className="space-y-2">
-                    <Label>Preview</Label>
-                    <Card className="bg-muted/50">
-                      <CardContent className="p-4">
-                        {title.trim() && (
-                          <h3 className="font-semibold text-lg mb-2">
-                            {title}
-                          </h3>
-                        )}
-                        {content.trim() && (
-                          <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                            {content}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                          <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs text-primary-foreground">
-                            {user?.username?.charAt(0).toUpperCase()}
-                          </div>
-                          <span className="text-sm font-medium">{user?.username}</span>
-                          <span className="text-xs text-muted-foreground">
-                            • agora
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex justify-between items-center pt-4">
-                  <div className="text-sm text-muted-foreground">
-                    Postando como <strong>{user?.username}</strong>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => navigate('/forum')}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={isLoading || !title.trim() || !content.trim()}
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Publicando...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 mr-2" />
-                          Publicar Tópico
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Guidelines */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Diretrizes da Comunidade</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="text-sm text-muted-foreground space-y-2">
-                <li>• Seja respeitoso com outros membros da comunidade</li>
-                <li>• Mantenha as discussões relevantes ao tema do entretenimento</li>
-                <li>• Evite spam, conteúdo ofensivo ou inadequado</li>
-                <li>• Use títulos descritivos para facilitar a busca</li>
-                <li>• Contribua de forma construtiva para as discussões</li>
-              </ul>
-            </CardContent>
-          </Card>
+        {/* Header */}
+        <div className="flex items-center mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/forum')}
+            className="mr-4 text-gray-400 hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar ao Fórum
+          </Button>
+          <h1 className="text-3xl font-bold text-white">Criar Novo Tópico</h1>
         </div>
+
+        {/* Form */}
+        <Card className="max-w-4xl mx-auto bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white">Novo Tópico de Discussão</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Título */}
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-white">
+                  Título do Tópico *
+                </Label>
+                <Input
+                  id="title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Digite um título claro e descritivo..."
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-primary"
+                  maxLength={255}
+                  required
+                />
+                <p className="text-sm text-gray-400">
+                  {title.length}/255 caracteres (mínimo 5)
+                </p>
+              </div>
+
+              {/* Categoria */}
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-white">
+                  Categoria *
+                </Label>
+                <Select value={category} onValueChange={setCategory} required>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue placeholder="Selecione uma categoria..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    {categories.map((cat) => (
+                      <SelectItem 
+                        key={cat.value} 
+                        value={cat.value}
+                        className="text-white hover:bg-gray-600"
+                      >
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="space-y-2">
+                <Label htmlFor="content" className="text-white">
+                  Conteúdo *
+                </Label>
+                <Textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Escreva o conteúdo do seu tópico aqui..."
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-primary min-h-[200px]"
+                  maxLength={5000}
+                  required
+                />
+                <p className="text-sm text-gray-400">
+                  {content.length}/5000 caracteres (mínimo 10)
+                </p>
+              </div>
+
+              {/* Dicas */}
+              <div className="bg-gray-700 border border-gray-600 rounded-lg p-4">
+                <h3 className="text-white font-semibold mb-2">💡 Dicas para um bom tópico:</h3>
+                <ul className="text-gray-300 text-sm space-y-1">
+                  <li>• Use um título claro e específico</li>
+                  <li>• Escolha a categoria mais adequada</li>
+                  <li>• Seja respeitoso e construtivo</li>
+                  <li>• Forneça contexto suficiente para discussão</li>
+                  <li>• Evite spoilers sem aviso prévio</li>
+                </ul>
+              </div>
+
+              {/* Botões */}
+              <div className="flex justify-end space-x-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/forum')}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !title.trim() || !content.trim() || !category}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      Criando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Criar Tópico
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
