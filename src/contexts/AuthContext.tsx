@@ -58,20 +58,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (data: LoginData) => {
     try {
       setIsLoading(true);
-      const response = await authService.login(data);
+      const response = await fetch('https://web-production-a6602.up.railway.app/api/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+        body: JSON.stringify(data)
+      });
+    
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
+      }
+    
+      const responseData = await response.json();
       
-      // Salvar token e dados do utilizador
-      localStorage.setItem('myverse_token', response.access_token);
-      localStorage.setItem('myverse_user', JSON.stringify(response.user));
-      
-      setUser(response.user);
+      // Resto da sua lógica atual (salvar token, redirecionar, etc.)
+      localStorage.setItem('myverse_token', responseData.access_token);
+      localStorage.setItem('myverse_user', JSON.stringify(responseData.user));
+      setUser(responseData.user);
       toast.success('Login realizado com sucesso!');
-      
-      // Redirecionar para dashboard ou página anterior
-      const redirectTo = localStorage.getItem('myverse_redirect') || '/dashboard';
-      localStorage.removeItem('myverse_redirect');
-      navigate(redirectTo);
-      
+      navigate('/dashboard');
+    
     } catch (error: any) {
       console.error('Erro no login:', error);
       throw error;
