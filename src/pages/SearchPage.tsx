@@ -80,7 +80,7 @@ const SearchPage: React.FC = () => {
       const favoriteChecks = await Promise.all(
         results.map(async (item) => {
           try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/content/favorites/check`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/content/favorites/check`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ const SearchPage: React.FC = () => {
         throw new Error('Token de autenticação não encontrado');
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/content/favorites`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/content/favorites`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ const SearchPage: React.FC = () => {
       }
 
       // Primeiro, buscar o ID do favorito
-      const favoritesResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/content/favorites`, {
+      const favoritesResponse = await fetch(`${import.meta.env.VITE_API_URL}/content/favorites`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -212,16 +212,16 @@ const SearchPage: React.FC = () => {
         throw new Error('Favorito não encontrado');
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/content/favorites/${favorite.id}`, {
+      // Remover o favorito
+      const deleteResponse = await fetch(`${import.meta.env.VITE_API_URL}/content/favorites/${favorite.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao remover dos favoritos');
+      if (!deleteResponse.ok) {
+        throw new Error('Erro ao remover dos favoritos');
       }
 
       setFavoriteIds(prev => {
@@ -245,13 +245,26 @@ const SearchPage: React.FC = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'movie':
-        return <Film className="h-4 w-4" />;
+        return <Film className="w-4 h-4" />;
       case 'tv':
-        return <Tv className="h-4 w-4" />;
+        return <Tv className="w-4 h-4" />;
       case 'game':
-        return <Gamepad2 className="h-4 w-4" />;
+        return <Gamepad2 className="w-4 h-4" />;
       default:
-        return <Play className="h-4 w-4" />;
+        return <Play className="w-4 h-4" />;
+    }
+  };
+
+  const getTypeBadgeColor = (type: string) => {
+    switch (type) {
+      case 'movie':
+        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      case 'tv':
+        return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'game':
+        return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+      default:
+        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
   };
 
@@ -264,214 +277,203 @@ const SearchPage: React.FC = () => {
       case 'game':
         return 'Jogo';
       default:
-        return 'Conteúdo';
+        return type;
     }
+  };
+
+  const formatRating = (rating: number) => {
+    return rating ? rating.toFixed(1) : 'N/A';
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
     try {
       return new Date(dateString).getFullYear().toString();
     } catch {
-      return dateString;
+      return 'N/A';
     }
   };
 
-  const renderStars = (rating: number) => {
-    const stars = Math.round(rating / 2); // Converter de 10 para 5 estrelas
+  if (loading) {
     return (
-      <div className="flex items-center">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`h-4 w-4 ${
-              i < stars ? 'text-yellow-400 fill-current' : 'text-gray-400'
-            }`}
-          />
-        ))}
-        <span className="ml-1 text-sm text-gray-400">
-          {rating ? rating.toFixed(1) : 'N/A'}
-        </span>
+      <div className="min-h-screen bg-gray-900 text-white">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+              <p className="text-gray-400">Pesquisando...</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="myverse-container myverse-section">
-        {/* Search Header */}
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-4">Pesquisar Conteúdo</h1>
+          <h1 className="text-3xl font-bold mb-6">Pesquisar Conteúdo</h1>
           
-          {/* Search Form */}
-          <form onSubmit={handleSearch} className="relative max-w-2xl">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
+          <form onSubmit={handleSearch} className="flex gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Pesquisar filmes, séries, jogos..."
-                className="block w-full pl-10 pr-3 py-3 border border-gray-600 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               />
             </div>
-            <Button 
-              type="submit" 
-              className="absolute right-2 top-2 bottom-2"
-              disabled={loading}
-            >
-              {loading ? 'Pesquisando...' : 'Pesquisar'}
+            <Button type="submit" className="bg-yellow-500 hover:bg-yellow-600 text-black px-6">
+              Pesquisar
             </Button>
           </form>
         </div>
 
-        {/* Results */}
-        {query && (
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-white mb-4">
-              Resultados para "{query}"
-            </h2>
-            
-            {loading && (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                <p className="mt-4 text-gray-400">Pesquisando...</p>
-              </div>
-            )}
-
-            {error && (
-              <div className="text-center py-8">
-                <p className="text-red-400 mb-4">{error}</p>
-                <Button 
-                  onClick={() => performSearch(query)}
-                  variant="outline"
-                >
-                  Tentar Novamente
-                </Button>
-              </div>
-            )}
-
-            {!loading && !error && results.length === 0 && query && (
-              <div className="text-center py-8">
-                <p className="text-gray-400">Nenhum resultado encontrado para "{query}"</p>
-              </div>
-            )}
-
-            {!loading && !error && results.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {results.map((item) => {
-                  const isFavorite = favoriteIds.has(item.id);
-                  const isAdding = addingToFavorites.has(item.id);
-                  
-                  return (
-                    <Card key={`${item.type}-${item.id}`} className="bg-gray-800 border-gray-700 hover:border-primary transition-colors">
-                      <CardContent className="p-4">
-                        {/* Poster */}
-                        <div className="relative mb-4">
-                          <img
-                            src={item.poster_url || '/placeholder-poster.jpg'}
-                            alt={item.title}
-                            className="w-full h-64 object-cover rounded-lg"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = '/placeholder-poster.jpg';
-                            }}
-                          />
-                          
-                          {/* Type Badge */}
-                          <Badge 
-                            variant="secondary" 
-                            className="absolute top-2 left-2 bg-primary text-primary-foreground"
-                          >
-                            {getTypeIcon(item.type)}
-                            <span className="ml-1">{getTypeLabel(item.type)}</span>
-                          </Badge>
-
-                          {/* Favorite Button */}
-                          {user && (
-                            <Button
-                              size="sm"
-                              variant={isFavorite ? "default" : "outline"}
-                              className="absolute top-2 right-2"
-                              onClick={() => isFavorite ? removeFromFavorites(item) : addToFavorites(item)}
-                              disabled={isAdding}
-                            >
-                              {isAdding ? (
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
-                              ) : isFavorite ? (
-                                <Check className="h-4 w-4" />
-                              ) : (
-                                <Plus className="h-4 w-4" />
-                              )}
-                            </Button>
-                          )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="space-y-2">
-                          <CardTitle className="text-white text-lg line-clamp-2">
-                            {item.title}
-                          </CardTitle>
-                          
-                          {/* Rating and Year */}
-                          <div className="flex items-center justify-between">
-                            {renderStars(item.rating)}
-                            {item.release_date && (
-                              <div className="flex items-center text-gray-400 text-sm">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                {formatDate(item.release_date)}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Genres */}
-                          {item.genres && item.genres.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {item.genres.slice(0, 3).map((genre, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {genre}
-                                </Badge>
-                              ))}
-                              {item.genres.length > 3 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{item.genres.length - 3}
-                                </Badge>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Platforms (for games) */}
-                          {item.platforms && item.platforms.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {item.platforms.slice(0, 3).map((platform, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {platform}
-                                </Badge>
-                              ))}
-                              {item.platforms.length > 3 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{item.platforms.length - 3}
-                                </Badge>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Overview */}
-                          {item.overview && (
-                            <CardDescription className="text-gray-400 text-sm line-clamp-3">
-                              {item.overview}
-                            </CardDescription>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
+        {error && (
+          <div className="bg-red-500/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6">
+            {error}
           </div>
         )}
+
+        {query && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">
+              Resultados para "{query}" ({results.length} encontrados)
+            </h2>
+          </div>
+        )}
+
+        {results.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {results.map((item) => {
+              const isFavorite = favoriteIds.has(item.id);
+              const isAdding = addingToFavorites.has(item.id);
+
+              return (
+                <Card key={`${item.type}-${item.id}`} className="bg-gray-800 border-gray-700 hover:border-gray-600 transition-colors">
+                  <div className="relative">
+                    {item.poster_url ? (
+                      <img
+                        src={item.poster_url}
+                        alt={item.title}
+                        className="w-full h-64 object-cover rounded-t-lg"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder-poster.jpg';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-64 bg-gray-700 rounded-t-lg flex items-center justify-center">
+                        {getTypeIcon(item.type)}
+                      </div>
+                    )}
+                    
+                    <div className="absolute top-2 left-2">
+                      <Badge className={`${getTypeBadgeColor(item.type)} border`}>
+                        <span className="flex items-center gap-1">
+                          {getTypeIcon(item.type)}
+                          {getTypeLabel(item.type)}
+                        </span>
+                      </Badge>
+                    </div>
+
+                    {user && (
+                      <div className="absolute top-2 right-2">
+                        <Button
+                          size="sm"
+                          variant={isFavorite ? "default" : "outline"}
+                          onClick={() => isFavorite ? removeFromFavorites(item) : addToFavorites(item)}
+                          disabled={isAdding}
+                          className={`w-8 h-8 p-0 ${
+                            isFavorite 
+                              ? 'bg-yellow-500 hover:bg-yellow-600 text-black' 
+                              : 'bg-gray-800/80 hover:bg-gray-700 border-gray-600'
+                          }`}
+                        >
+                          {isAdding ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                          ) : isFavorite ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <Plus className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <CardContent className="p-4">
+                    <CardTitle className="text-lg mb-2 line-clamp-2">{item.title}</CardTitle>
+                    
+                    <div className="flex items-center gap-4 mb-3 text-sm text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-yellow-500" />
+                        <span>{formatRating(item.rating)}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{formatDate(item.release_date)}</span>
+                      </div>
+                    </div>
+
+                    {item.genres && item.genres.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {item.genres.slice(0, 3).map((genre, index) => (
+                          <Badge key={index} variant="outline" className="text-xs border-gray-600 text-gray-300">
+                            {genre}
+                          </Badge>
+                        ))}
+                        {item.genres.length > 3 && (
+                          <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">
+                            +{item.genres.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {item.platforms && item.platforms.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {item.platforms.slice(0, 2).map((platform, index) => (
+                          <Badge key={index} variant="outline" className="text-xs border-purple-600 text-purple-300">
+                            {platform}
+                          </Badge>
+                        ))}
+                        {item.platforms.length > 2 && (
+                          <Badge variant="outline" className="text-xs border-purple-600 text-purple-300">
+                            +{item.platforms.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    <CardDescription className="text-gray-400 text-sm line-clamp-3">
+                      {item.overview || 'Sem descrição disponível.'}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : query && !loading ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">Nenhum resultado encontrado para "{query}"</p>
+              <p className="text-sm">Tente pesquisar com termos diferentes</p>
+            </div>
+          </div>
+        ) : !query ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400">
+              <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">Digite algo para pesquisar</p>
+              <p className="text-sm">Encontre filmes, séries e jogos</p>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

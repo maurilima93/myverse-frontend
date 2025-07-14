@@ -70,7 +70,7 @@ const CreateTopicPage: React.FC = () => {
         throw new Error('Token de autenticação não encontrado');
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/forum/posts`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/forum/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
