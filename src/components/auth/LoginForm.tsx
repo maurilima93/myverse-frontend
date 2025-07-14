@@ -24,6 +24,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { login, isLoading } = useAuth();
 
   const {
@@ -35,10 +36,15 @@ export const LoginForm: React.FC = () => {
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    setError(null);
     try {
       await login(data);
     } catch (error) {
-      // Erro já tratado no contexto de autenticação
+      setError(
+        error instanceof Error 
+          ? error.message 
+          : 'Ocorreu um erro durante o login. Por favor, tente novamente.'
+      );
     }
   };
 
@@ -62,6 +68,13 @@ export const LoginForm: React.FC = () => {
           
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Mensagem de erro global */}
+              {error && (
+                <div className="p-4 text-sm text-destructive bg-destructive/10 rounded-md">
+                  {error}
+                </div>
+              )}
+
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
@@ -163,4 +176,3 @@ export const LoginForm: React.FC = () => {
 };
 
 export default LoginForm;
-
