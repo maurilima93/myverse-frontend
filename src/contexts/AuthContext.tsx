@@ -55,39 +55,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (data: LoginData) => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('https://web-production-a6602.up.railway.app/api/auth/login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      });
+  export const login = async (credentials) => {
+  try {
+    const response = await fetch('https://web-production-a6602.up.railway.app/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials)
+    });
+
+    const data = await response.json();
     
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
-      }
-    
-      const responseData = await response.json();
-      
-      // Resto da sua lógica atual (salvar token, redirecionar, etc.)
-      localStorage.setItem('myverse_token', responseData.access_token);
-      localStorage.setItem('myverse_user', JSON.stringify(responseData.user));
-      setUser(responseData.user);
-      toast.success('Login realizado com sucesso!');
-      navigate('/dashboard');
-    
-    } catch (error: any) {
-      console.error('Erro no login:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      // Extrai a mensagem de erro do backend ou usa uma padrão
+      const errorMessage = data.error || 'Falha no login. Tente novamente.';
+      throw new Error(errorMessage);
     }
-  };
+
+    return data;
+    
+  } catch (error) {
+    console.error('Erro no login:', error);
+    throw error; // Rejeita a promise com o erro
+  }
+};
 
   const register = async (data: RegisterData) => {
     try {
