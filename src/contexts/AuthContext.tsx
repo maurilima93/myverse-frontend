@@ -3,6 +3,17 @@ import { User, authService, LoginData, RegisterData } from '../lib/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
+interface LoginData {
+  email: string;
+  password: string;
+}
+
+interface User {
+  id: string;
+  email: string;
+  username: string;
+  created_at?: string;
+}
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -55,31 +66,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  export const login = async (credentials) => {
-  try {
-    const response = await fetch('https://web-production-a6602.up.railway.app/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials)
-    });
+  const login = async (credentials: LoginData): Promise<void> => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('https://web-production-a6602.up.railway.app/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials)
+      });
 
-    const data = await response.json();
-    
-    if (!response.ok) {
-      // Extrai a mensagem de erro do backend ou usa uma padrão
-      const errorMessage = data.error || 'Falha no login. Tente novamente.';
-      throw new Error(errorMessage);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+
+      const data = await response.json();
+
+      // Armazene o token e dados do usuário
+      localStorage.setItem('myverse_token', data.access_token);
+      localStorage.setItem('myverse_user', JSON.stringify(data.user));
+
+      setUser(data.user);
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-
-    return data;
-    
-  } catch (error) {
-    console.error('Erro no login:', error);
-    throw error; // Rejeita a promise com o erro
-  }
-};
+  };
 
   const register = async (data: RegisterData) => {
     try {
