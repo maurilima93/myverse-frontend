@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User as ApiUser, authService, LoginData as ApiLoginData, RegisterData } from '../lib/api';
+import { authService, LoginData as ApiLoginData, RegisterData } from '../lib/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
