@@ -189,7 +189,7 @@ export const useRequireAuth = () => {
     if (!isLoading && !isAuthenticated) {
       // Salvar página atual para redirecionar após login
       localStorage.setItem("myverse_redirect", window.location.pathname);
-      navigate("/login");
+      navigate("api/auth/login");
     }
   }, [isAuthenticated, isLoading, navigate]);
   
