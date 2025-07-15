@@ -1,24 +1,20 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, authService, LoginData, RegisterData } from '../lib/api';
+import { User as ApiUser, authService, LoginData as ApiLoginData, RegisterData } from '../lib/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
-interface LoginData {
-  email: string;
-  password: string;
-}
-
 interface User {
-  id: string;
+  id: number;
   email: string;
   username: string;
   created_at?: string;
 }
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (data: LoginData) => Promise<void>;
+  login: (data: ApiLoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   updateUser: (data: Partial<User>) => Promise<void>;
@@ -66,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (credentials: LoginData): Promise<void> => {
+  const login = async (credentials: ApiLoginData): Promise<void> => {
     try {
       setIsLoading(true);
       const response = await fetch('https://web-production-a6602.up.railway.app/api/auth/login', {
@@ -201,4 +197,3 @@ export const useRequireAuth = () => {
 };
 
 export default AuthContext;
-
