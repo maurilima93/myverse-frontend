@@ -25,6 +25,9 @@ import FavoritesPage from './pages/FavoritesPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import PrivacyPage from './pages/PrivacyPage';
+import FriendsPage from './pages/FriendsPage';
+import AddFriendsPage from './pages/AddFriendsPage';
+import FriendProfilePage from './pages/FriendProfilePage';
 
 // Componente para rotas protegidas
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -169,7 +172,15 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
-
+      
+      <Route 
+            path="/profile/:userId" 
+            element={
+              <ProtectedRoute>
+                <FriendProfilePage />
+              </ProtectedRoute>
+            } 
+          />
       <Route 
         path="/search" 
         element={
@@ -219,7 +230,33 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+      {/* Rotas do Sistema de Amigos */}
+      <Route 
+        path="/friends" 
+        element={
+          <ProtectedRoute>
+            <FriendsPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/add-friends" 
+        element={
+          <ProtectedRoute>
+            <AddFriendsPage />
+          </ProtectedRoute>
+        } 
+      />
 
+      {/* Rota de fallback - redireciona para dashboard se logado, senão para home */}
+      <Route 
+        path="*" 
+        element={
+          localStorage.getItem('token') ? 
+            <Navigate to="/dashboard" replace /> : 
+            <Navigate to="/" replace />
+        } 
+      />
       {/* Rota 404 */}
       <Route 
         path="*" 

@@ -1,253 +1,345 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, User, LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Search, User, LogOut, Menu, X, Users, UserPlus, Bell } from 'lucide-react';
 
 const Navbar: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const { user, logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [user, setUser] = useState<{ username: string } | null>(null);
+  const [notifications, setNotifications] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Verificar se o usuário está logado
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      try {
+        setUser(JSON.parse(userData));
+        fetchNotifications();
+      } catch (error) {
+        console.error('Erro ao parsear dados do usuário:', error);
+      }
+    }
+  }, [location]);
+
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/friends/requests/count`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.count || 0);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar notificações:', error);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
+    if (searchTerm.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm('');
+      setIsOpen(false);
     }
   };
 
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
     navigate('/');
   };
 
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
-    <nav className="imdb-navbar sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-3">
-              <img 
-                src="/logo.png" 
-                alt="MyVerse Logo" 
-                className="w-10 h-10 object-contain"
-              />
-              <span className="text-xl font-bold text-white">MyVerse</span>
-            </Link>
-          </div>
+          <Link to={user ? "/dashboard" : "/"} className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">MV</span>
+            </div>
+            <span className="text-white font-bold text-xl">MyVerse</span>
+          </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              <Link 
-                to="/" 
-                className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors"
-              >
-                Início
-              </Link>
-              <Link 
-                to="/about" 
-                className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors"
-              >
-                Sobre
-              </Link>
-              <Link 
-                to="/forum" 
-                className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors"
-              >
-                Fórum
-              </Link>
-              <Link 
-                to="/privacy" 
-                className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors"
-              >
-                Política de Privacidade
-              </Link>
-              {user && (
-                <Link 
-                  to="/dashboard" 
-                  className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors"
+          <div className="hidden md:flex items-center space-x-6">
+            {user ? (
+              <>
+                {/* Search Bar */}
+                <form onSubmit={handleSearch} className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar filmes, séries, jogos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white w-80"
+                  />
+                </form>
+
+                {/* Navigation Links */}
+                <Link
+                  to="/dashboard"
+                  className={`text-gray-300 hover:text-white transition-colors ${
+                    isActive('/dashboard') ? 'text-purple-400' : ''
+                  }`}
                 >
                   Dashboard
                 </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="hidden md:block flex-1 max-w-lg mx-8">
-            <form onSubmit={handleSearch} className="relative">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="imdb-input w-full pl-10 pr-4 py-2 text-sm"
-                  placeholder="Pesquisar filmes, séries, jogos..."
-                />
-              </div>
-            </form>
-          </div>
-
-          {/* User Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <Link to="/profile">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-gray-300 hover:text-purple-400 hover:bg-purple-500/10"
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    {user.username}
-                  </Button>
-                </Link>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleLogout}
-                  className="text-gray-300 hover:text-red-400 hover:bg-red-500/10"
+                <Link
+                  to="/search"
+                  className={`text-gray-300 hover:text-white transition-colors ${
+                    isActive('/search') ? 'text-purple-400' : ''
+                  }`}
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sair
-                </Button>
-              </div>
+                  Explorar
+                </Link>
+                <Link
+                  to="/forum"
+                  className={`text-gray-300 hover:text-white transition-colors ${
+                    isActive('/forum') ? 'text-purple-400' : ''
+                  }`}
+                >
+                  Fórum
+                </Link>
+                
+                {/* Friends Dropdown */}
+                <div className="relative group">
+                  <button className={`flex items-center space-x-1 text-gray-300 hover:text-white transition-colors ${
+                    isActive('/friends') || isActive('/add-friends') ? 'text-purple-400' : ''
+                  }`}>
+                    <Users className="h-4 w-4" />
+                    <span>Amigos</span>
+                    {notifications > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {notifications}
+                      </span>
+                    )}
+                  </button>
+                  
+                  {/* Dropdown Menu */}
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div className="py-2">
+                      <Link
+                        to="/friends"
+                        className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <Users className="h-4 w-4" />
+                        <span>Meus Amigos</span>
+                        {notifications > 0 && (
+                          <span className="bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ml-auto">
+                            {notifications}
+                          </span>
+                        )}
+                      </Link>
+                      <Link
+                        to="/add-friends"
+                        className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <UserPlus className="h-4 w-4" />
+                        <span>Adicionar Amigos</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+                {/* User Menu */}
+                <div className="relative group">
+                  <button className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors">
+                    <User className="h-5 w-5" />
+                    <span>{user.username}</span>
+                  </button>
+                  
+                  {/* User Dropdown */}
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div className="py-2">
+                      <Link
+                        to="/profile"
+                        className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>Meu Perfil</span>
+                      </Link>
+                      <Link
+                        to="/favorites"
+                        className="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <Search className="h-4 w-4" />
+                        <span>Meus Favoritos</span>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center space-x-2 w-full px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors text-left"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Sair</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
             ) : (
-              <div className="flex items-center space-x-3">
-                <Link to="/login">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="text-gray-300 hover:text-purple-400 hover:bg-purple-500/10"
-                  >
-                    Entrar
-                  </Button>
+              <>
+                <Link
+                  to="/login"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Entrar
                 </Link>
-                <Link to="/register">
-                  <Button 
-                    size="sm"
-                    className="purple-button"
-                  >
-                    Criar conta
-                  </Button>
+                <Link
+                  to="/register"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  Cadastrar
                 </Link>
-              </div>
+              </>
             )}
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-300 hover:text-purple-400"
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-gray-300 hover:text-white focus:outline-none"
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden border-t border-gray-700">
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-gray-900/95 backdrop-blur">
-            {/* Mobile Search */}
-            <div className="px-3 py-2">
-              <form onSubmit={handleSearch} className="relative">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="imdb-input w-full pl-10 pr-4 py-2 text-sm"
-                    placeholder="Pesquisar filmes, séries, jogos..."
-                  />
-                </div>
-              </form>
-            </div>
-
-            {/* Mobile Navigation Links */}
-            <Link
-              to="/"
-              className="text-gray-300 hover:text-purple-400 block px-3 py-2 text-base font-medium"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Início
-            </Link>
-            <Link
-              to="/forum"
-              className="text-gray-300 hover:text-purple-400 block px-3 py-2 text-base font-medium"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Fórum
-            </Link>
-            {user && (
-              <Link
-                to="/dashboard"
-                className="text-gray-300 hover:text-purple-400 block px-3 py-2 text-base font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-            )}
-
-            {/* Mobile User Actions */}
-            <div className="border-t border-gray-700 pt-4 pb-3">
+        {/* Mobile Navigation */}
+        {isOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-gray-800 rounded-lg mt-2">
               {user ? (
-                <div className="space-y-2">
+                <>
+                  {/* Mobile Search */}
+                  <form onSubmit={handleSearch} className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Buscar..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white w-full"
+                    />
+                  </form>
+
                   <Link
-                    to="/profile"
-                    className="flex items-center px-3 py-2 text-base font-medium text-gray-300 hover:text-purple-400"
-                    onClick={() => setIsMenuOpen(false)}
+                    to="/dashboard"
+                    className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                    onClick={() => setIsOpen(false)}
                   >
-                    <User className="h-5 w-5 mr-3" />
-                    {user.username}
+                    Dashboard
                   </Link>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-300 hover:text-red-400"
+                  <Link
+                    to="/search"
+                    className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                    onClick={() => setIsOpen(false)}
                   >
-                    <LogOut className="h-5 w-5 mr-3" />
-                    Sair
-                  </button>
-                </div>
+                    Explorar
+                  </Link>
+                  <Link
+                    to="/forum"
+                    className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Fórum
+                  </Link>
+                  
+                  {/* Mobile Friends Section */}
+                  <div className="border-t border-gray-700 pt-2 mt-2">
+                    <div className="px-3 py-2 text-gray-400 text-sm font-medium">Amigos</div>
+                    <Link
+                      to="/friends"
+                      className="flex items-center space-x-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>Meus Amigos</span>
+                      {notifications > 0 && (
+                        <span className="bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ml-auto">
+                          {notifications}
+                        </span>
+                      )}
+                    </Link>
+                    <Link
+                      to="/add-friends"
+                      className="flex items-center space-x-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      <span>Adicionar Amigos</span>
+                    </Link>
+                  </div>
+
+                  {/* Mobile User Section */}
+                  <div className="border-t border-gray-700 pt-2 mt-2">
+                    <div className="px-3 py-2 text-gray-400 text-sm font-medium">{user.username}</div>
+                    <Link
+                      to="/profile"
+                      className="flex items-center space-x-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <User className="h-4 w-4" />
+                      <span>Meu Perfil</span>
+                    </Link>
+                    <Link
+                      to="/favorites"
+                      className="flex items-center space-x-2 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Search className="h-4 w-4" />
+                      <span>Meus Favoritos</span>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                      className="flex items-center space-x-2 w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors text-left"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sair</span>
+                    </button>
+                  </div>
+                </>
               ) : (
-                <div className="space-y-2">
+                <>
                   <Link
                     to="/login"
-                    className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-purple-400"
-                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                    onClick={() => setIsOpen(false)}
                   >
                     Entrar
                   </Link>
                   <Link
                     to="/register"
-                    className="block px-3 py-2 text-base font-medium text-purple-400 hover:text-purple-300"
-                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors"
+                    onClick={() => setIsOpen(false)}
                   >
-                    Criar conta
+                    Cadastrar
                   </Link>
-                </div>
+                </>
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   );
 };
