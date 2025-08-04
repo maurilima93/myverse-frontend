@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Heart, MessageSquare, Users, Trophy, TrendingUp, Calendar, Star } from 'lucide-react';
+import { User, Heart, Users, Trophy, TrendingUp, Calendar, Star } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface UserProfile {
@@ -208,9 +208,9 @@ const ProfilePage: React.FC = () => {
 
   const COLORS = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B'];
 
-  const renderCustomizedLabel = ({ type, percentage }: { type: string; percentage: number }) => {
-    return `${type}: ${percentage}%`;
-  };
+  const renderCustomizedLabel = ({ type, percentage }: ContentDistribution) => {
+  return `${type}: ${percentage}%`;
+};
 
   return (
     <div className="min-h-screen bg-gray-900 py-8">
