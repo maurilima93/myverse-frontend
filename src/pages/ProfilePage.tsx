@@ -1,515 +1,435 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  User, 
-  Heart, 
-  MessageCircle, 
-  Calendar, 
-  Star, 
-  Film, 
-  Tv, 
-  Gamepad2, 
-  Users, 
-  TrendingUp,
-  Award,
-  Target,
-  BarChart3,
-  PieChart,
-  Activity
-} from 'lucide-react';
-import { PieChart as RechartsPieChart, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts';
+import { User, Heart, MessageSquare, Users, Trophy, TrendingUp, Calendar, Star } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-interface UserStats {
+interface UserProfile {
   id: number;
   username: string;
   email: string;
+  joinDate: string;
+  favoriteCount: number;
+  forumPosts: number;
+  friendsCount: number;
+  achievements: string[];
+}
+
+interface Favorite {
+  id: number;
+  content_id: string;
+  content_type: string;
+  title: string;
+  poster_url: string | null;
+  rating: number;
+  genres: string[];
   created_at: string;
-  total_favorites: number;
-  total_posts: number;
-  total_friends: number;
-  favorite_genres: string[];
-  monthly_activity: Array<{
-    month: string;
-    favorites: number;
-    posts: number;
-  }>;
-  content_distribution: Array<{
-    type: string;
-    count: number;
-    percentage: number;
-  }>;
-  genre_preferences: Array<{
-    genre: string;
-    count: number;
-  }>;
-  recent_favorites: Array<{
-    id: number;
-    title: string;
-    type: 'movie' | 'tv' | 'game';
-    poster_url?: string;
-    rating?: number;
-    added_at: string;
-  }>;
-  achievements: Array<{
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    unlocked_at: string;
-  }>;
-  compatibility_scores: Array<{
-    friend_username: string;
-    score: number;
-  }>;
+}
+
+interface ActivityData {
+  month: string;
+  favorites: number;
+  posts: number;
+}
+
+interface ContentDistribution {
+  type: string;
+  count: number;
+  percentage: number;
 }
 
 const ProfilePage: React.FC = () => {
-  const navigate = useNavigate();
-  const [stats, setStats] = useState<UserStats | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'activity' | 'favorites' | 'achievements'>('overview');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [activityData, setActivityData] = useState<ActivityData[]>([]);
+  const [contentDistribution, setContentDistribution] = useState<ContentDistribution[]>([]);
 
   useEffect(() => {
-    fetchUserStats();
+    fetchProfile();
+    fetchFavorites();
   }, []);
 
-  const fetchUserStats = async () => {
+  const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/profile/stats`, {
+      const username = localStorage.getItem('username');
+      
+      if (!token || !username) {
+        return;
+      }
+
+      // Simular dados do perfil
+      const mockProfile: UserProfile = {
+        id: 1,
+        username: username,
+        email: 'usuario@exemplo.com',
+        joinDate: '2024-01-15',
+        favoriteCount: 0,
+        forumPosts: 0,
+        friendsCount: 12,
+        achievements: ['Primeiro Favorito', 'Cinéfilo', 'Gamer', 'Crítico']
+      };
+
+      setProfile(mockProfile);
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error);
+    }
+  };
+
+  const fetchFavorites = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/content/favorites`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (response.ok) {
         const data = await response.json();
-        setStats(data.stats);
+        setFavorites(data.favorites || []);
+        
+        // Atualizar contagem no perfil
+        if (profile) {
+          setProfile({
+            ...profile,
+            favoriteCount: data.favorites?.length || 0
+          });
+        }
+
+        // Gerar dados de atividade
+        generateActivityData(data.favorites || []);
+        generateContentDistribution(data.favorites || []);
       }
     } catch (error) {
-      console.error('Erro ao buscar estatísticas:', error);
+      console.error('Erro ao buscar favoritos:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'movie': return <Film className="h-4 w-4" />;
-      case 'tv': return <Tv className="h-4 w-4" />;
-      case 'game': return <Gamepad2 className="h-4 w-4" />;
-      default: return <Heart className="h-4 w-4" />;
+  const generateActivityData = (favs: Favorite[]) => {
+    const monthlyData: { [key: string]: { favorites: number; posts: number } } = {};
+    
+    // Últimos 6 meses
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthKey = date.toLocaleDateString('pt-BR', { month: 'short' });
+      monthlyData[monthKey] = { favorites: 0, posts: 0 };
     }
+
+    // Contar favoritos por mês
+    favs.forEach(fav => {
+      const date = new Date(fav.created_at);
+      const monthKey = date.toLocaleDateString('pt-BR', { month: 'short' });
+      if (monthlyData[monthKey]) {
+        monthlyData[monthKey].favorites++;
+      }
+    });
+
+    // Simular posts do fórum
+    Object.keys(monthlyData).forEach(month => {
+      monthlyData[month].posts = Math.floor(Math.random() * 5);
+    });
+
+    const data = Object.entries(monthlyData).map(([month, counts]) => ({
+      month,
+      favorites: counts.favorites,
+      posts: counts.posts
+    }));
+
+    setActivityData(data);
   };
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'movie': return 'Filmes';
-      case 'tv': return 'Séries';
-      case 'game': return 'Jogos';
-      default: return 'Conteúdo';
-    }
+  const generateContentDistribution = (favs: Favorite[]) => {
+    const distribution: { [key: string]: number } = {
+      movie: 0,
+      tv: 0,
+      game: 0
+    };
+
+    favs.forEach(fav => {
+      if (distribution[fav.content_type] !== undefined) {
+        distribution[fav.content_type]++;
+      }
+    });
+
+    const total = Object.values(distribution).reduce((sum, count) => sum + count, 0);
+    
+    const data = Object.entries(distribution).map(([type, count]) => ({
+      type: type === 'movie' ? 'Filmes' : type === 'tv' ? 'Séries' : 'Jogos',
+      count,
+      percentage: total > 0 ? Math.round((count / total) * 100) : 0
+    }));
+
+    setContentDistribution(data);
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'movie': return '#8B5CF6'; // Purple
-      case 'tv': return '#06B6D4'; // Cyan
-      case 'game': return '#10B981'; // Green
-      default: return '#6B7280'; // Gray
-    }
+  const getTopGenres = () => {
+    const genreCount: { [key: string]: number } = {};
+    
+    favorites.forEach(fav => {
+      fav.genres.forEach(genre => {
+        if (genre && genre.trim()) {
+          genreCount[genre] = (genreCount[genre] || 0) + 1;
+        }
+      });
+    });
+
+    return Object.entries(genreCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 5)
+      .map(([genre, count]) => ({ genre, count }));
   };
 
-  const getAchievementIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'star': return <Star className="h-6 w-6" />;
-      case 'heart': return <Heart className="h-6 w-6" />;
-      case 'users': return <Users className="h-6 w-6" />;
-      case 'award': return <Award className="h-6 w-6" />;
-      case 'target': return <Target className="h-6 w-6" />;
-      default: return <Award className="h-6 w-6" />;
-    }
+  const getCompatibilityScore = () => {
+    // Simular score de compatibilidade com amigos
+    return Math.floor(Math.random() * 30) + 70; // 70-100%
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p>Carregando perfil...</p>
-        </div>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">Carregando perfil...</div>
       </div>
     );
   }
 
-  if (!stats) {
+  if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center">
-          <User className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-400 mb-2">Erro ao carregar perfil</h3>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg transition-colors"
-          >
-            Voltar ao Dashboard
-          </button>
-        </div>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">Erro ao carregar perfil</div>
       </div>
     );
   }
+
+  const COLORS = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B'];
+
+  const renderCustomizedLabel = ({ type, percentage }: { type: string; percentage: number }) => {
+    return `${type}: ${percentage}%`;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="container mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <div className="bg-gray-800 rounded-lg p-8 mb-8">
-          <div className="flex items-center space-x-6 mb-6">
+    <div className="min-h-screen bg-gray-900 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header do Perfil */}
+        <div className="bg-gray-800 rounded-lg p-6 mb-8">
+          <div className="flex items-center space-x-6">
             <div className="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center">
-              <User className="h-12 w-12" />
+              <User className="w-12 h-12 text-white" />
             </div>
-            <div>
-              <h1 className="text-4xl font-bold mb-2">{stats.username}</h1>
-              <p className="text-gray-400 mb-4">{stats.email}</p>
-              <div className="flex items-center space-x-6 text-sm text-gray-400">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>Membro desde {new Date(stats.created_at).toLocaleDateString('pt-BR')}</span>
+            
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-white mb-2">{profile.username}</h1>
+              <p className="text-gray-400 mb-4">Membro desde {new Date(profile.joinDate).toLocaleDateString('pt-BR')}</p>
+              
+              <div className="flex space-x-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-400">{profile.favoriteCount}</div>
+                  <div className="text-gray-400 text-sm">Favoritos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-400">{profile.forumPosts}</div>
+                  <div className="text-gray-400 text-sm">Posts</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-400">{profile.friendsCount}</div>
+                  <div className="text-gray-400 text-sm">Amigos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-yellow-400">{getCompatibilityScore()}%</div>
+                  <div className="text-gray-400 text-sm">Compatibilidade</div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Heart className="h-6 w-6 text-red-500" />
-              </div>
-              <div className="text-2xl font-bold text-white">{stats.total_favorites}</div>
-              <div className="text-gray-400 text-sm">Favoritos</div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <MessageCircle className="h-6 w-6 text-blue-500" />
-              </div>
-              <div className="text-2xl font-bold text-white">{stats.total_posts}</div>
-              <div className="text-gray-400 text-sm">Posts</div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Users className="h-6 w-6 text-green-500" />
-              </div>
-              <div className="text-2xl font-bold text-white">{stats.total_friends}</div>
-              <div className="text-gray-400 text-sm">Amigos</div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Star className="h-6 w-6 text-yellow-500" />
-              </div>
-              <div className="text-2xl font-bold text-white">{stats.favorite_genres.length}</div>
-              <div className="text-gray-400 text-sm">Gêneros</div>
-            </div>
+        {/* Navegação por Abas */}
+        <div className="bg-gray-800 rounded-lg mb-8">
+          <div className="flex border-b border-gray-700">
+            {[
+              { id: 'overview', label: 'Visão Geral', icon: TrendingUp },
+              { id: 'activity', label: 'Atividade', icon: Calendar },
+              { id: 'favorites', label: 'Favoritos', icon: Heart },
+              { id: 'achievements', label: 'Conquistas', icon: Trophy }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'text-purple-400 border-b-2 border-purple-400'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <tab.icon className="w-5 h-5" />
+                <span>{tab.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'overview'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            Visão Geral
-          </button>
-          <button
-            onClick={() => setActiveTab('activity')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'activity'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            Atividade
-          </button>
-          <button
-            onClick={() => setActiveTab('favorites')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'favorites'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            Favoritos
-          </button>
-          <button
-            onClick={() => setActiveTab('achievements')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'achievements'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            Conquistas
-          </button>
-        </div>
-
-        {/* Tab Content */}
+        {/* Conteúdo das Abas */}
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Content Distribution */}
+            {/* Distribuição de Conteúdo */}
             <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-                <PieChart className="h-5 w-5 text-purple-500" />
-                <span>Distribuição de Conteúdo</span>
-              </h2>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
+              <h3 className="text-xl font-bold text-white mb-4">Distribuição de Conteúdo</h3>
+              {contentDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
                     <Pie
-                      data={stats.content_distribution}
+                      data={contentDistribution}
                       cx="50%"
                       cy="50%"
+                      labelLine={false}
+                      label={renderCustomizedLabel}
                       outerRadius={80}
+                      fill="#8884d8"
                       dataKey="count"
-                      label={({ type, percentage }) => `${getTypeLabel(type)}: ${percentage}%`}
                     >
-                      {stats.content_distribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={getTypeColor(entry.type)} />
+                      {contentDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip />
-                  </RechartsPieChart>
+                  </PieChart>
                 </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Top Genres */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-                <BarChart3 className="h-5 w-5 text-purple-500" />
-                <span>Gêneros Favoritos</span>
-              </h2>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.genre_preferences.slice(0, 8)}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis 
-                      dataKey="genre" 
-                      stroke="#9CA3AF"
-                      fontSize={12}
-                      angle={-45}
-                      textAnchor="end"
-                      height={80}
-                    />
-                    <YAxis stroke="#9CA3AF" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
-                        border: '1px solid #374151',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Bar dataKey="count" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Compatibility with Friends */}
-            {stats.compatibility_scores.length > 0 && (
-              <div className="bg-gray-800 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-                  <TrendingUp className="h-5 w-5 text-purple-500" />
-                  <span>Compatibilidade com Amigos</span>
-                </h2>
-                <div className="space-y-3">
-                  {stats.compatibility_scores.slice(0, 5).map((score, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <span className="text-gray-300">{score.friend_username}</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-gray-700 rounded-full h-2">
-                          <div 
-                            className="bg-purple-500 h-2 rounded-full" 
-                            style={{ width: `${score.score}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm text-gray-400 w-12">{score.score}%</span>
-                      </div>
-                    </div>
-                  ))}
+              ) : (
+                <div className="text-gray-400 text-center py-8">
+                  Adicione favoritos para ver a distribuição
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Quick Actions */}
+            {/* Gêneros Favoritos */}
             <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Ações Rápidas</h2>
+              <h3 className="text-xl font-bold text-white mb-4">Gêneros Favoritos</h3>
               <div className="space-y-3">
-                <button
-                  onClick={() => navigate('/search')}
-                  className="w-full flex items-center space-x-3 bg-purple-600 hover:bg-purple-700 p-3 rounded-lg transition-colors"
-                >
-                  <Heart className="h-5 w-5" />
-                  <span>Adicionar Favoritos</span>
-                </button>
-                <button
-                  onClick={() => navigate('/forum')}
-                  className="w-full flex items-center space-x-3 bg-blue-600 hover:bg-blue-700 p-3 rounded-lg transition-colors"
-                >
-                  <MessageCircle className="h-5 w-5" />
-                  <span>Participar do Fórum</span>
-                </button>
-                <button
-                  onClick={() => navigate('/add-friends')}
-                  className="w-full flex items-center space-x-3 bg-green-600 hover:bg-green-700 p-3 rounded-lg transition-colors"
-                >
-                  <Users className="h-5 w-5" />
-                  <span>Encontrar Amigos</span>
-                </button>
+                {getTopGenres().map((item, index) => (
+                  <div key={item.genre} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                        {index + 1}
+                      </div>
+                      <span className="text-white">{item.genre}</span>
+                    </div>
+                    <span className="text-gray-400">{item.count} itens</span>
+                  </div>
+                ))}
+                {getTopGenres().length === 0 && (
+                  <div className="text-gray-400 text-center py-8">
+                    Adicione favoritos para ver seus gêneros preferidos
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
 
         {activeTab === 'activity' && (
-          <div className="space-y-8">
-            {/* Monthly Activity Chart */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-                <Activity className="h-5 w-5 text-purple-500" />
-                <span>Atividade Mensal</span>
-              </h2>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={stats.monthly_activity}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="month" stroke="#9CA3AF" />
-                    <YAxis stroke="#9CA3AF" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
-                        border: '1px solid #374151',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="favorites" 
-                      stroke="#8B5CF6" 
-                      strokeWidth={3}
-                      name="Favoritos"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="posts" 
-                      stroke="#06B6D4" 
-                      strokeWidth={3}
-                      name="Posts"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-white mb-4">Atividade dos Últimos 6 Meses</h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={activityData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="month" stroke="#9CA3AF" />
+                <YAxis stroke="#9CA3AF" />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1F2937', 
+                    border: '1px solid #374151',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Bar dataKey="favorites" fill="#8B5CF6" name="Favoritos" />
+                <Bar dataKey="posts" fill="#06B6D4" name="Posts" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         )}
 
         {activeTab === 'favorites' && (
-          <div className="space-y-8">
-            {/* Recent Favorites */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-6 flex items-center space-x-2">
-                <Heart className="h-5 w-5 text-red-500" />
-                <span>Favoritos Recentes</span>
-              </h2>
-              {stats.recent_favorites.length === 0 ? (
-                <div className="text-center py-12">
-                  <Heart className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-400 mb-2">Nenhum favorito ainda</h3>
-                  <p className="text-gray-500 mb-4">Comece explorando filmes, séries e jogos!</p>
-                  <button
-                    onClick={() => navigate('/search')}
-                    className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg transition-colors"
-                  >
-                    Explorar Conteúdo
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {stats.recent_favorites.map((favorite) => (
-                    <div key={favorite.id} className="group">
-                      <div className="aspect-[2/3] bg-gray-700 rounded-lg overflow-hidden mb-2">
-                        {favorite.poster_url ? (
-                          <img
-                            src={favorite.poster_url}
-                            alt={favorite.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            {getTypeIcon(favorite.type)}
-                          </div>
-                        )}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-white mb-4">Favoritos Recentes</h3>
+            {favorites.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {favorites.slice(0, 12).map(favorite => (
+                  <div key={favorite.id} className="bg-gray-700 rounded-lg p-3">
+                    {favorite.poster_url ? (
+                      <img
+                        src={favorite.poster_url}
+                        alt={favorite.title}
+                        className="w-full h-32 object-cover rounded-lg mb-2"
+                      />
+                    ) : (
+                      <div className="w-full h-32 bg-gray-600 rounded-lg mb-2 flex items-center justify-center">
+                        <span className="text-gray-400 text-xs text-center">{favorite.title}</span>
                       </div>
-                      <div className="text-sm">
-                        <div className="flex items-center space-x-1 text-gray-400 mb-1">
-                          {getTypeIcon(favorite.type)}
-                          <span className="text-xs">{getTypeLabel(favorite.type).slice(0, -1)}</span>
+                    )}
+                    <h4 className="text-white text-sm font-medium truncate">{favorite.title}</h4>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs text-gray-400 capitalize">{favorite.content_type}</span>
+                      {favorite.rating && (
+                        <div className="flex items-center space-x-1">
+                          <Star className="w-3 h-3 text-yellow-400" />
+                          <span className="text-xs text-gray-400">{favorite.rating.toFixed(1)}</span>
                         </div>
-                        <h3 className="font-medium text-white truncate">{favorite.title}</h3>
-                        {favorite.rating && (
-                          <div className="flex items-center space-x-1 mt-1">
-                            <Star className="h-3 w-3 text-yellow-500" />
-                            <span className="text-xs text-gray-400">{favorite.rating.toFixed(1)}</span>
-                          </div>
-                        )}
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date(favorite.added_at).toLocaleDateString('pt-BR')}
-                        </p>
-                      </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-gray-400 text-center py-8">
+                <Heart className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                <p>Você ainda não tem favoritos</p>
+                <p className="text-sm mt-2">Explore conteúdos e adicione aos seus favoritos!</p>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'achievements' && (
-          <div className="space-y-8">
-            {/* Achievements */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-6 flex items-center space-x-2">
-                <Award className="h-5 w-5 text-yellow-500" />
-                <span>Conquistas</span>
-              </h2>
-              {stats.achievements.length === 0 ? (
-                <div className="text-center py-12">
-                  <Award className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-400 mb-2">Nenhuma conquista ainda</h3>
-                  <p className="text-gray-500">Continue usando o MyVerse para desbloquear conquistas!</p>
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-white mb-4">Conquistas</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {profile.achievements.map((achievement, index) => (
+                <div key={index} className="bg-gray-700 rounded-lg p-4 flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <Trophy className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-medium">{achievement}</h4>
+                    <p className="text-gray-400 text-sm">Conquista desbloqueada</p>
+                  </div>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {stats.achievements.map((achievement) => (
-                    <div key={achievement.id} className="bg-gray-700 rounded-lg p-4 flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                        {getAchievementIcon(achievement.icon)}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-white">{achievement.title}</h3>
-                        <p className="text-sm text-gray-400">{achievement.description}</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Desbloqueado em {new Date(achievement.unlocked_at).toLocaleDateString('pt-BR')}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+              ))}
+              
+              {/* Conquistas bloqueadas */}
+              <div className="bg-gray-700 rounded-lg p-4 flex items-center space-x-3 opacity-50">
+                <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
+                  <Trophy className="w-6 h-6 text-gray-400" />
                 </div>
-              )}
+                <div>
+                  <h4 className="text-gray-400 font-medium">Colecionador</h4>
+                  <p className="text-gray-500 text-sm">Tenha 50 favoritos</p>
+                </div>
+              </div>
+              
+              <div className="bg-gray-700 rounded-lg p-4 flex items-center space-x-3 opacity-50">
+                <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
+                  <Users className="w-6 h-6 text-gray-400" />
+                </div>
+                <div>
+                  <h4 className="text-gray-400 font-medium">Social</h4>
+                  <p className="text-gray-500 text-sm">Tenha 25 amigos</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
